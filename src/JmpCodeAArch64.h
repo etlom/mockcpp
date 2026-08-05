@@ -14,21 +14,20 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 ***/
-#ifndef __MOCKCPP_JMP_CODE_ARCH_H__
-#define __MOCKCPP_JMP_CODE_ARCH_H__
+#ifndef __MOCKCPP_JMP_CODE_AARCH64_H__
+#define __MOCKCPP_JMP_CODE_AARCH64_H__
 
-#include <mockcpp/mockcpp.h>
+// ldr x16, #8; br x16; .quad target
+// x16 is an intra-procedure-call scratch register under AAPCS64.
+const unsigned char jmpCodeTemplate[] =
+   { 0x50, 0x00, 0x00, 0x58, 0x00, 0x02, 0x1F, 0xD6,
+     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-#if defined(__aarch64__) || defined(_M_ARM64)
-# include "JmpCodeAArch64.h"
-#elif defined(__arm__) || defined(_M_ARM)
-# include "JmpCodeARM.h"
-#elif BUILD_FOR_X64
-# include "JmpCodeX64.h"
-#elif BUILD_FOR_X86
-# include "JmpCodeX86.h"
-#else
-# error "Unsupported architecture for mockcpp API hook"
-#endif
+#define SET_JMP_CODE(base, from, to) do { \
+       uintptr_t targetAddress = (uintptr_t)(to); \
+       ::memcpy((base) + 8, &targetAddress, sizeof(targetAddress)); \
+   } while(0)
+
+#define GET_JMP_CODE_PATCH_ADDRESS(from) (const_cast<void*>(from))
 
 #endif

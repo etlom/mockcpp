@@ -30,6 +30,8 @@ bool CodeModifier::modify(void *dest, const void *src, size_t size)
 	bRet = ::VirtualProtect(dest, size, dwReadWrite, &dwOldProtect);
 	bRet =  bRet && 
 		::WriteProcessMemory( ::GetCurrentProcess(), dest, src,  size, NULL );
+	bRet = bRet &&
+		::FlushInstructionCache(::GetCurrentProcess(), dest, size);
 	bRet =  bRet && 
 		::VirtualProtect(dest, size, dwOldProtect, &dwReadWrite);
 	return (bRet == TRUE);
@@ -37,4 +39,3 @@ bool CodeModifier::modify(void *dest, const void *src, size_t size)
 
 
 MOCKCPP_NS_END
-

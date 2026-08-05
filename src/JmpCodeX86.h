@@ -19,9 +19,11 @@
 
 const unsigned char jmpCodeTemplate[]  = { 0xE9, 0x00, 0x00, 0x00, 0x00 };
 #define SET_JMP_CODE(base, from, to) do { \
-        *(unsigned long*)(base + 1) = \
-            (unsigned long long)to - (unsigned long long)from - sizeof(jmpCodeTemplate); \
+        uint32_t relativeAddress = (uint32_t)( \
+            (uintptr_t)(to) - (uintptr_t)(from) - sizeof(jmpCodeTemplate)); \
+        ::memcpy((base) + 1, &relativeAddress, sizeof(relativeAddress)); \
    } while(0)
 
-#endif
+#define GET_JMP_CODE_PATCH_ADDRESS(from) (const_cast<void*>(from))
 
+#endif

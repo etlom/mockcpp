@@ -38,6 +38,11 @@ bool CodeModifier::modify(void *dest, const void *src, size_t size)
 
     ::memcpy(dest, src, size);
 
+#if defined(__GNUC__) || defined(__clang__)
+    __builtin___clear_cache(static_cast<char*>(dest),
+                            static_cast<char*>(dest) + size);
+#endif
+
 
 #if 0
 	#if BUILD_FOR_X86

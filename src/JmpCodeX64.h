@@ -24,8 +24,10 @@ const unsigned char jmpCodeTemplate[]  =
    { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 #define SET_JMP_CODE(base, from, to) do { \
-       *(uintptr_t *)(base + 6) = (uintptr_t)to; \
+       uintptr_t targetAddress = (uintptr_t)(to); \
+       ::memcpy((base) + 6, &targetAddress, sizeof(targetAddress)); \
    } while(0)
 
-#endif
+#define GET_JMP_CODE_PATCH_ADDRESS(from) (const_cast<void*>(from))
 
+#endif

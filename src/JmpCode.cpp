@@ -23,15 +23,21 @@
 
 MOCKCPP_NS_START
 
-#define JMP_CODE_SIZE sizeof(jmpCodeTemplate)
-
 struct JmpCodeImpl
 {
    ////////////////////////////////////////////////
    JmpCodeImpl(const void* from, const void* to)
+#if defined(__arm__) || defined(_M_ARM)
+      : m_codeSize(buildArmJmpCode(m_code, from, to))
+#else
+      : m_codeSize(sizeof(jmpCodeTemplate))
+#endif
+      , m_patchAddress(GET_JMP_CODE_PATCH_ADDRESS(from))
    {
-      ::memcpy(m_code, jmpCodeTemplate, JMP_CODE_SIZE);
+#if !defined(__arm__) && !defined(_M_ARM)
+      ::memcpy(m_code, jmpCodeTemplate, sizeof(jmpCodeTemplate));
       SET_JMP_CODE(m_code, from, to);
+#endif
    }
 
    ////////////////////////////////////////////////
@@ -43,12 +49,24 @@ struct JmpCodeImpl
    ////////////////////////////////////////////////
    size_t getCodeSize() const
    {
-      return JMP_CODE_SIZE;
+      return m_codeSize;
+   }
+
+   ////////////////////////////////////////////////
+   void* getPatchAddress() const
+   {
+      return m_patchAddress;
    }
 
    ////////////////////////////////////////////////
 
-   unsigned char m_code[JMP_CODE_SIZE];
+#if defined(__arm__) || defined(_M_ARM)
+   unsigned char m_code[MAX_JMP_CODE_SIZE];
+#else
+   unsigned char m_code[sizeof(jmpCodeTemplate)];
+#endif
+   size_t m_codeSize;
+   void* m_patchAddress;
 };
 
 ///////////////////////////////////////////////////
@@ -77,5 +95,11 @@ JmpCode::getCodeSize() const
    return This->getCodeSize();
 }
 
-MOCKCPP_NS_END
+///////////////////////////////////////////////////
+void*
+JmpCode::getPatchAddress() const
+{
+   return This->getPatchAddress();
+}
 
+MOCKCPP_NS_END

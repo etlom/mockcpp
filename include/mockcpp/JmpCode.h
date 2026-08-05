@@ -33,6 +33,7 @@ struct JmpCode
     
     void*  getCodeData() const;
     size_t getCodeSize() const;
+    void*  getPatchAddress() const;
 private:
 	JmpCodeImpl* This;
 };
@@ -40,4 +41,3 @@ private:
 MOCKCPP_NS_END
 
 #endif
-

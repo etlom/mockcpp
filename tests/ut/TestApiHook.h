@@ -68,6 +68,14 @@ FIXTURE(ApiHook)
 		ASSERT_EQ(ret, func(a, b));
 	}
 
+	TEST(can restore C function after reset)
+	{
+		ASSERT_EQ(ret, func(a, b));
+		GlobalMockObject::verify();
+		GlobalMockObject::reset();
+		ASSERT_EQ(0, func(a, b));
+	}
+
 	TEST(should throw some exception when calling the mocked function with wrong parameter)
 	{
 	    #ifdef _MSC_VER

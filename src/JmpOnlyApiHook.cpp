@@ -32,7 +32,7 @@ struct JmpOnlyApiHookImpl
               , const void* stub)
 		: m_jmpCode(api, stub)
         , m_originalData(0)
-        , m_api(api)
+        , m_api(m_jmpCode.getPatchAddress())
    {
       startHook();
    }
@@ -67,13 +67,13 @@ struct JmpOnlyApiHookImpl
    /////////////////////////////////////////////////////
    void changeCode(const void* data)
    {
-      CodeModifier::modify(const_cast<void*>(m_api), data, m_jmpCode.getCodeSize());
+      CodeModifier::modify(m_api, data, m_jmpCode.getCodeSize());
    }
 
    /////////////////////////////////////////////////////
    JmpCode m_jmpCode;
    char* m_originalData;
-   const void* m_api;
+   void* m_api;
 };
 
 /////////////////////////////////////////////////////////////////
@@ -93,4 +93,3 @@ JmpOnlyApiHook::~JmpOnlyApiHook()
 /////////////////////////////////////////////////////////////////
 
 MOCKCPP_NS_END
-
